@@ -5,6 +5,7 @@ from eventdispatch.weakmethodref import WeakMethodRef
 
 class _WeakSet(set):
 	def __init__(self):
+		super(_WeakSet, self).__init__()
 		def _remove(item, wself=weakref.ref(self)):
 			self = wself()
 			if self is not None:
@@ -47,7 +48,7 @@ class DispatchSession(object):
 					self.get_connected(None)
 				)
 			)
-			if pair[0]
+			if pair[1] is not None
 		]
 	def get_connected(self, signal):
 		return self.signal_map.get(signal, _WeakSet())
