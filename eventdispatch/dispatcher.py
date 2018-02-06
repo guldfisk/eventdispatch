@@ -5,9 +5,9 @@ import weakref
 
 from eventdispatch.weakmethodref import WeakMethodRef
 
-class _WeakSet(set):
+class WeakSet(set):
 	def __init__(self):
-		super(_WeakSet, self).__init__()
+		super(WeakSet, self).__init__()
 		def _remove(item, weak_self=weakref.ref(self)):
 			self = weak_self()
 			if self is not None:
@@ -23,20 +23,20 @@ class _WeakSet(set):
 			if item is not None:
 				yield item
 	def add(self, item):
-		super(_WeakSet, self).add(self._register_ref(item))
+		super(WeakSet, self).add(self._register_ref(item))
 	def _discard_ref(self, item):
-		super(_WeakSet, self).discard(item)
+		super(WeakSet, self).discard(item)
 	def discard(self, item):
-		super(_WeakSet, self).discard(self._register_ref(item))
+		super(WeakSet, self).discard(self._register_ref(item))
 	def __str__(self):
-		return '_WeakSet(%s)' % super(_WeakSet, self).__str__()
+		return '_WeakSet(%s)' % super(WeakSet, self).__str__()
 
 class DispatchSession(object):
 	def __init__(self):
 		self.signal_map = {} #type: t.Dict[t.Hashable, t.Set[t.Callable]]
 	def connect(self, f: t.Callable, signal: t.Hashable = None):
 		if not signal in self.signal_map:
-			self.signal_map[signal] = _WeakSet()
+			self.signal_map[signal] = WeakSet()
 		self.signal_map[signal].add(f)
 	def send(self, signal, **kwargs) -> t.List[t.Tuple[t.Callable, t.Any]]:
 		return [
@@ -53,7 +53,7 @@ class DispatchSession(object):
 			if value is not None
 		]
 	def get_connected(self, signal) -> t.Set[t.Callable]:
-		return self.signal_map.get(signal, _WeakSet())
+		return self.signal_map.get(signal, WeakSet())
 	def disconnect(self, f, signal=None) -> None:
 		self.signal_map[signal].discard(f)
 	def __str__(self):
