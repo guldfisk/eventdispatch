@@ -42,12 +42,12 @@ class WeakSet(set):
 class DispatchSession(object):
 
     def __init__(self):
-        self.signal_map: t.Dict[t.Hashable, t.Set[t.Callable]] = {}
+        self._signal_map: t.Dict[t.Hashable, t.Set[t.Callable]] = {}
 
     def connect(self, f: t.Callable, signal: t.Hashable = None):
-        if not signal in self.signal_map:
-            self.signal_map[signal] = WeakSet()
-        self.signal_map[signal].add(f)
+        if not signal in self._signal_map:
+            self._signal_map[signal] = WeakSet()
+        self._signal_map[signal].add(f)
 
     def send(self, signal, source: t.Optional[t.Any] = None, **kwargs) -> t.List[t.Tuple[t.Callable, t.Any]]:
         return [
@@ -65,10 +65,10 @@ class DispatchSession(object):
         ]
 
     def get_connected(self, signal) -> t.Set[t.Callable]:
-        return self.signal_map.get(signal, WeakSet())
+        return self._signal_map.get(signal, WeakSet())
 
     def disconnect(self, f, signal = None) -> None:
-        self.signal_map[signal].discard(f)
+        self._signal_map[signal].discard(f)
 
     def __str__(self):
         return '{}({})'.format(
@@ -77,9 +77,9 @@ class DispatchSession(object):
                 key: [
                     item
                     for item in
-                    self.signal_map[key]
+                    self._signal_map[key]
                 ]
                 for key in
-                self.signal_map
+                self._signal_map
             }
         )
